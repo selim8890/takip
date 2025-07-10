@@ -1996,7 +1996,6 @@ function exportToExcel() {
 }
 
     </script>
-
 <script>
 const supabaseUrl = 'https://YOUR_SUPABASE_URL.supabase.co';
 const supabaseKey = 'YOUR_PUBLIC_ANON_KEY';
@@ -2019,6 +2018,36 @@ async function saveToSupabase() {
         alert("Supabase'e kaydedilirken hata oluştu!");
     } else {
         alert("Supabase'e başarıyla kaydedildi!");
+    }
+}
+
+
+
+async function loadDataFromSupabase() {
+    const { data, error } = await supabase
+        .from('ogrenci_verileri')
+        .select('*')
+        .order('lastUpdated', { ascending: false })
+        .limit(1)
+        .single();
+
+    if (error) {
+        console.error("Supabase veri çekme hatası:", error);
+        return;
+    }
+
+    if (data) {
+        students = data.students || [];
+        behaviorColumns = data.behaviorColumns || [];
+        examColumns = data.examColumns || [];
+
+        renderTableHeaders();
+        renderStudentTable();
+        populateStudentSelects();
+        populateBehaviorSelect();
+        updateClassAndBranchFilters();
+        updateDashboardTitle();
+        updateDashboard();
     }
 }
 </script>
