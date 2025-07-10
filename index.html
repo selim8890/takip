@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Öğrenci Takip Sistemi</title>
+<style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+			transition: padding 0.3s ease;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 14px;
+            font-size: 24px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+        .sira-column {
+            cursor: pointer;
+            background-color: #7f8c8d;
+            width: 20px;
+            min-width: 40px;
+            text-align: center;
+            font-weight: bold;
+        }
+		.selected {
+            background-color: #3498db;
+            color: white;
+        }
+		.mass-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: flex-end;
+        }
+        .mass-delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .mass-delete-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .ogrno-column {
+            width: 60px;
+            min-width: 60px;
+            text-align: center;
+        }
+        .main-content {
+            flex: 3;
+            min-width: 300px;
+            overflow-x: auto;
+        }
+        .dashboard {
+            flex: 1;
+            min-width: 300px;
+            max-width: 350px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            height: fit-content;
+            margin-top: 116px;
+        }
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .control-btn {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .control-btn:hover {
+            background-color: #2980b9;
+        }
+        .save-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .save-btn:hover {
+            background-color: #27ae60;
+        }
+        .save-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+		
+        .filter-panel {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .filter-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        .filter-group select, .filter-group input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .table-container {
+            overflow-x: auto;
+			overflow-y: auto;
+			max-height: 600px;
+            max-width: 100%;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: white;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+            min-width: 1000px;
+        }
+		table thead th {
+			position: sticky;
+			top: 0;
+			z-index: 10;
+			background-color: #3498db;
+		}
+		
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 6px;
+            text-align: center;
+            height: max-height;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        .fixed-header {
+            width: auto;
+            min-width: 50px;
+            max-width: 60px;
+        }
+        .behavior-header {
+            width: auto;
+            min-width: 30px;
+            max-width: 50px;
+            padding: 2px;
+        }
+        .vertical-text {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            white-space: nowrap;
+            padding: 2px;
+            font-size: 11px;
+            line-height: 1.2;
+            letter-spacing: 0.3px;
+            margin: 0 auto;
+        }
+        td.editable-score select {
+            width: 100%;
+            padding: 4px 2px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: white;
+            cursor: pointer;
+            font-size: 12px;
+            appearance: none;
+            text-align: center;
+        }
+        td.editable-score input {
+            width: 90%;
+            padding: 4px 2px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: white;
+            text-align: center;
+            margin: 0 auto;
+            display: block;
+        }
+        input[type=text]::-webkit-outer-spin-button,
+        input[type=text]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=text] {
+            -moz-appearance: textfield;
+        }
+        .average-score {
+            font-weight: bold;
+            background-color: #f8f9fa;
+            width: 30px;
+            min-width: 30px;
+            color: #3498db;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-size: 14px;
+        }
+        .difficulty-score {
+            font-weight: bold;
+            background-color: #f8f9fa;
+            width: 30px;
+            min-width: 30px;
+            color: #e74c3c;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-size: 14px;
+        }
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        .dashboard-title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        .stats-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+			margin-top: 15px;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+			align-items: center;
+        }
+        .stat-label {
+            font-weight: 600;
+            color: #2c3e50;
+			font-size: 14px;
+        }
+        .stat-value {
+            font-weight: bold;
+            color: #3498db;
+			font-size: 15px;
+        }
+        .stat-value.difficulty {
+            color: #e74c3c;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        .submit-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            flex: 1;
+        }
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .modal-title {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .file-input-container {
+            margin-bottom: 15px;
+        }
+        .file-input-label {
+            display: block;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .file-input-label:hover {
+            background-color: #2980b9;
+        }
+        #file-input {
+            display: none;
+        }
+        .file-info {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #7f8c8d;
+            text-align: center;
+        }
+        .import-progress {
+            margin-top: 15px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        .progress {
+            height: 20px;
+            background-color: #2ecc71;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .progress-text {
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        .exam-header {
+            
+            min-width: 30px;
+            max-width: 40px;
+            padding: 2px;
+            background-color: #8e44ad;
+        }
+        .exam-score {
+            font-weight: bold;
+            background-color: #f8f9fa;
+            width: 40px;
+            min-width: 40px;
+            color: #8e44ad;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-size: 14px;
+            padding: 2px;
+        }
+        .average-exam-score {
+            font-weight: bold;
+            background-color: #f8f9fa;
+            width: 40px;
+            min-width: 40px;
+            color: #27ae60;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-size: 14px;
+            padding: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .fixed-header {
+                width: auto;
+                min-width: 60px;
+                max-width: 100px;
+            }
+            .behavior-header, .exam-header {
+                width: auto;
+                min-width: 30px;
+                max-width: 40px;
+            }
+            .control-panel, .filter-panel {
+                flex-direction: column;
+                align-items: center;
+            }
+            .dashboard {
+                position: static;
+                margin-top: 20px;
+                max-width: 100%;
+            }
+            .control-btn, .filter-group {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+            .vertical-text {
+                font-size: 9px;
+                padding: 1px;
+            }
+        }
+    </style>
+<!-- Chart.js kütüphanesi -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script></head>
+<body>
+<h1>ÖĞRENCİ TAKİP SİSTEMİ</h1>
+<div class="container">
+<div class="main-content">
+<div class="control-panel">
+<button class="control-btn" onclick="openStudentModal()">ÖĞRENCİ EKLE/SİL</button>
+<button class="control-btn" onclick="openBehaviorModal()">DAVRANIŞ İŞLEMLERİ</button>
+<button class="control-btn" onclick="openImportModal()">EXCEL'DEN İÇE AKTAR</button>
+<button class="control-btn" onclick="exportToExcel()">EXCEL'E AKTAR</button>
+<button class="save-btn" disabled="" id="save-button" onclick="saveData()">KAYDET</button>
+<button class="mass-delete-btn" disabled="" id="mass-delete-btn" onclick="deleteSelectedStudents()">SEÇİLİ ÖĞRENCİLERİ SİL</button>
+<button class="control-btn" onclick="logout()">ÇIKIŞ YAP</button>
+</div>
+<div class="filter-panel">
+<div class="filter-group">
+<label for="class-filter">Sınıf:</label>
+<select id="class-filter" onchange="filterStudents()">
+<option value="">Tüm Sınıflar</option>
+</select>
+</div>
+<div class="filter-group">
+<label for="branch-filter">Şube:</label>
+<select id="branch-filter" onchange="filterStudents()">
+<option value="">Tüm Şubeler</option>
+</select>
+</div>
+<div class="filter-group">
+<label for="search-filter">Ara:</label>
+<input id="search-filter" oninput="filterStudents()" placeholder="Ad veya soyad" type="text"/>
+</div>
+<button class="control-btn" onclick="resetFilters()">Filtreleri Temizle</button>
+</div>
+<div class="table-container">
+<table id="student-table">
+<thead>
+<tr id="table-headers"></tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+<div class="dashboard">
+<h2 class="dashboard-title" id="dashboard-title">TÜM SINIFLAR PERFORMANS</h2>
+<div class="chart-container">
+<canvas id="performanceChart"></canvas>
+</div>
+<div class="stats-container">
+<div class="stat-item">
+<span class="stat-label">Sınıf Mevcudu:</span>
+<span class="stat-value" id="class-size">0</span>
+</div>
+<div class="stat-item">
+<span class="stat-label">Sınıf Ortalaması:</span>
+<span class="stat-value" id="class-average">0</span>
+</div>
+<div class="stat-item">
+<span class="stat-label">Zorluk Derecesi:</span>
+<span class="stat-value difficulty" id="exam-difficulty">0</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Öğrenci İşlemleri Modal -->
+<div class="modal" id="studentModal">
+<div class="modal-content" onclick="event.stopPropagation()">
+<span class="close" onclick="closeStudentModal()">×</span>
+<h2 class="modal-title">Öğrenci İşlemleri</h2>
+<div class="form-group">
+<label for="student-select">Öğrenci Seçin:</label>
+<select id="student-select" onchange="loadStudentData()">
+<option value="">Yeni Öğrenci Ekle</option>
+</select>
+</div>
+<div class="form-group">
+<label for="student-number">Öğrenci No:</label>
+<input id="student-number" placeholder="Öğrenci numarası" type="text"/>
+</div>
+<div class="form-group">
+<label for="student-name">Adı:</label>
+<input id="student-name" placeholder="Öğrenci adı" type="text"/>
+</div>
+<div class="form-group">
+<label for="student-surname">Soyadı:</label>
+<input id="student-surname" placeholder="Öğrenci soyadı" type="text"/>
+</div>
+<div class="form-group">
+<label for="student-class">Sınıf:</label>
+<input id="student-class" placeholder="Sınıf" type="text"/>
+</div>
+<div class="form-group">
+<label for="student-branch">Şube:</label>
+<input id="student-branch" placeholder="Şube" type="text"/>
+</div>
+<div class="action-buttons">
+<button class="submit-btn" onclick="saveStudent()">Kaydet</button>
+</div>
+</div>
+</div>
+<!-- Davranış İşlemleri Modal -->
+<div class="modal" id="behaviorModal">
+<div class="modal-content" onclick="event.stopPropagation()">
+<span class="close" onclick="closeBehaviorModal()">×</span>
+<h2 class="modal-title">Davranış İşlemleri</h2>
+<div class="form-group">
+<label for="behavior-action-type">İşlem Türü:</label>
+<select id="behavior-action-type" onchange="toggleBehaviorFields()">
+<option value="add">Yeni Davranış Ekle</option>
+<option value="edit">Davranış Düzenle</option>
+<option value="delete">Davranış Sil</option>
+</select>
+</div>
+<div class="form-group" id="behavior-name-group">
+<label for="behavior-name">Davranış Adı:</label>
+<input id="behavior-name" placeholder="Örn: Ödev Yapma" type="text"/>
+</div>
+<div class="form-group" id="behavior-column-group">
+<label for="behavior-column">Sütun Kodu:</label>
+<input id="behavior-column" maxlength="4" placeholder="Örn: DV1" type="text"/>
+</div>
+<div class="form-group" id="existing-behavior-group" style="display:none;">
+<label for="existing-behavior">Mevcut Davranış:</label>
+<select id="existing-behavior">
+<option value="">Seçiniz</option>
+</select>
+</div>
+<div class="action-buttons">
+<button class="delete-btn" id="behavior-delete-btn" onclick="deleteBehavior()" style="display:none;">Sil</button>
+<button class="submit-btn" id="behavior-submit-btn" onclick="processBehavior()">Kaydet</button>
+</div>
+</div>
+</div>
+<!-- Excel Import Modal -->
+<div class="modal" id="importModal">
+<div class="modal-content" onclick="event.stopPropagation()">
+<span class="close" onclick="closeImportModal()">×</span>
+<h2 class="modal-title">Excel'den Öğrenci Listesi Aktar</h2>
+<div class="file-input-container">
+<label class="file-input-label" for="file-input">Excel Dosyası Seçin</label>
+<input accept=".xlsx, .xls, .csv" id="file-input" type="file"/>
+<div class="file-info">
+                    Desteklenen formatlar: .xlsx, .xls, .csv<br/>
+                    Excel dosyanızda sırasıyla Ad, Soyad, Sınıf, Şube sütunları olmalıdır.
+                </div>
+</div>
+<div class="form-group">
+<label for="import-class">Sınıf (Tüm öğrenciler için geçerli):</label>
+<input id="import-class" placeholder="Sınıf" type="text"/>
+</div>
+<div class="form-group">
+<label for="import-branch">Şube (Tüm öğrenciler için geçerli):</label>
+<input id="import-branch" placeholder="Şube" type="text"/>
+</div>
+<div class="import-progress" id="import-progress">
+<div class="progress-bar">
+<div class="progress" id="progress-bar"></div>
+</div>
+<div class="progress-text" id="progress-text">0/0 öğrenci işlendi</div>
+</div>
+<div class="action-buttons">
+<button class="submit-btn" onclick="importStudents()">Öğrencileri Aktar</button>
+</div>
+</div>
+</div>
+<!-- SheetJS kütüphanesi -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+        // Giriş kontrolü
+if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+    window.location.href = 'login.html';
+}
+
+// Çıkış fonksiyonu
+function logout() {
+    sessionStorage.removeItem('isLoggedIn');
+    window.location.href = 'login.html';
+}
+		// Veri yapıları
+        let students = [
+            { 
+                id: 1,
+                studentNumber: "1001",
+                name: "ALI", 
+                surname: "VELI", 
+                class: "10", 
+                branch: "A", 
+                behaviors: {}, 
+                exams: {},
+                total: 80 
+            }
+        ];
+
+        let behaviorColumns = [
+            { code: "DV1", name: "Derse Hazırlık" },
+            { code: "DV2", name: "Ödev Yapma" },
+            { code: "DV3", name: "Sınıf İçi Katılım" },
+            { code: "DV4", name: "Arkadaşlık İlişkileri" },
+            { code: "DV5", name: "Ders Araç-Gereçleri" },
+            { code: "DV6", name: "Kurallara Uyma" },
+            { code: "DV7", name: "Öz Bakım" },
+            { code: "DV8", name: "Sorumluluk Alma" },
+            { code: "DV9", name: "Yardımlaşma" },
+            { code: "DV10", name: "Çevre Bilinci" }
+        ];
+
+        let examColumns = [
+            { code: "SNV1", name: "Sınav 1" },
+            { code: "SNV2", name: "Sınav 2" },
+            { code: "SNV3", name: "Sınav 3" },
+            { code: "SNV4", name: "Sınav 4" },
+            { code: "SNV5", name: "Sınav 5" },
+            { code: "SNV6", name: "Sınav 6" },
+            { code: "SNV7", name: "Sınav 7" },
+            { code: "SNV8", name: "Sınav 8" },
+            { code: "SNV9", name: "Sınav 9" },
+            { code: "SNV10", name: "Sınav 10" }
+        ];
+
+        // Örnek verileri yükle
+        students[0].behaviors["DV1"] = 6;
+        students[0].behaviors["DV2"] = 8;
+        students[0].behaviors["DV3"] = 9;
+        students[0].behaviors["DV4"] = 7;
+        students[0].behaviors["DV5"] = 1;
+        students[0].behaviors["DV6"] = 9;
+        students[0].behaviors["DV7"] = 10;
+        students[0].behaviors["DV8"] = 10;
+        students[0].behaviors["DV9"] = 10;
+        students[0].exams["SNV1"] = 75;
+        students[0].exams["SNV2"] = 82;
+        students[0].exams["SNV3"] = 68;
+
+        // Değişiklik takibi için
+        let hasUnsavedChanges = false;
+        const saveButton = document.getElementById('save-button');
+        let performanceChart = null;
+function netlifyKaydet() {
+  const veri = JSON.stringify({
+    students, 
+    behaviorColumns, 
+    examColumns
+  });
+  
+  document.getElementById("form-veri").value = veri;
+  document.forms["ogrenci-verileri"].submit();
+  alert("Veriler Netlify'a kaydedildi!");
+}
+
+// Kaydet butonunu güncelle
+document.getElementById('save-button').addEventListener('click', netlifyKaydet);
+        // Sayfa yüklendiğinde
+        window.onload = function() {
+            loadData();
+            renderTableHeaders();
+            renderStudentTable();
+            populateStudentSelects();
+            populateBehaviorSelect();
+            updateClassAndBranchFilters();
+            updateDashboardTitle();
+            initDashboard();
+            
+            // Modal dışına tıklayarak kapatma
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        if (modal.id === 'studentModal') closeStudentModal();
+                        if (modal.id === 'behaviorModal') closeBehaviorModal();
+                        if (modal.id === 'importModal') closeImportModal();
+                    }
+                });
+            });
+
+            window.addEventListener('beforeunload', function(e) {
+                if (hasUnsavedChanges) {
+                    e.preventDefault();
+                    e.returnValue = 'Kaydedilmemiş değişiklikler var. Sayfadan ayrılmak istediğinize emin misiniz?';
+                    return e.returnValue;
+                }
+            });
+
+            // Otomatik kaydetme
+            setInterval(() => {
+                if (hasUnsavedChanges) {
+                    saveData();
+                }
+            }, 300000); // 5 dakikada bir
+        };
+
+        // Dashboard'u başlat
+        function initDashboard() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            if (!ctx) return;
+            
+            performanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Davranış Ortalaması', 'Zorluk Derecesi'],
+                    datasets: [{
+                        label: 'Performans',
+                        data: [0, 100],
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(231, 76, 60, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(231, 76, 60, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Puan (0-100)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: false,
+                            text: 'TÜM SINIFLAR PERFORMANS',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+            
+            updateDashboard();
+        }
+
+        // Dashboard'u güncelle
+        function updateDashboard() {
+            const filteredStudents = getFilteredStudents();
+            const studentCount = filteredStudents.length;
+			
+			// Sınıf mevcudunu güncelle
+			document.getElementById('class-size').textContent = studentCount;
+			
+            if (studentCount === 0) {
+                performanceChart.data.datasets[0].data = [0, 100];
+                performanceChart.update();
+                document.getElementById('class-average').textContent = '0';
+                document.getElementById('exam-difficulty').textContent = '100';
+                return;
+            }
+            
+            // Davranış ortalamalarını hesapla
+            const behaviorAverages = behaviorColumns.map(col => {
+                const scores = filteredStudents
+                    .map(student => student.behaviors[col.code] || 0)
+                    .filter(score => score !== null);
+                
+                if (scores.length === 0) return 0;
+                
+                const sum = scores.reduce((a, b) => a + b, 0);
+                return (sum / scores.length) * 10;
+            });
+            
+            // Genel davranış ortalaması
+            const classAverage = behaviorAverages.length > 0 
+                ? (behaviorAverages.reduce((a, b) => a + b, 0) / behaviorAverages.length)
+                : 0;
+            
+            // Genel zorluk (ters orantılı)
+            const overallDifficulty = 100 - classAverage;
+            
+            // Grafiği güncelle
+            performanceChart.data.datasets[0].data = [classAverage, overallDifficulty];
+            performanceChart.update();
+            
+            // İstatistikleri güncelle
+            document.getElementById('class-average').textContent = classAverage.toFixed(1);
+            document.getElementById('exam-difficulty').textContent = overallDifficulty.toFixed(1);
+        }
+
+        // Filtrelenmiş öğrencileri getir
+        function getFilteredStudents() {
+            const classFilter = document.getElementById("class-filter").value;
+            const branchFilter = document.getElementById("branch-filter").value;
+            const searchFilter = document.getElementById("search-filter").value.toLowerCase();
+            
+            let filteredStudents = students;
+            
+            if (classFilter) {
+                filteredStudents = filteredStudents.filter(s => s.class === classFilter);
+            }
+            
+            if (branchFilter) {
+                filteredStudents = filteredStudents.filter(s => s.branch === branchFilter);
+            }
+            
+            if (searchFilter) {
+                filteredStudents = filteredStudents.filter(s => 
+                    s.name.toLowerCase().includes(searchFilter) || 
+                    s.surname.toLowerCase().includes(searchFilter)
+                );
+            }
+            
+            return filteredStudents;
+        }
+
+        // Değişiklik olduğunu işaretle
+        function markChanges() {
+            hasUnsavedChanges = true;
+            saveButton.disabled = false;
+        }
+
+        // Verileri yükle
+        function loadData() {
+            const savedData = localStorage.getItem('ogrenciTakipSistemi');
+            if (savedData) {
+                try {
+                    const parsedData = JSON.parse(savedData);
+                    if (parsedData.students) {
+                        students = parsedData.students;
+                    }
+                    if (parsedData.behaviorColumns) {
+                        behaviorColumns = parsedData.behaviorColumns;
+                    }
+                    if (parsedData.examColumns) {
+                        examColumns = parsedData.examColumns;
+                    }
+                    hasUnsavedChanges = false;
+                    saveButton.disabled = true;
+                } catch (e) {
+                    console.error('Veri yükleme hatası:', e);
+                }
+            }
+        }
+
+        // Verileri kaydet
+        function saveData() {
+            const dataToSave = {
+                students: students,
+                behaviorColumns: behaviorColumns,
+                examColumns: examColumns,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            try {
+                localStorage.setItem('ogrenciTakipSistemi', JSON.stringify(dataToSave));
+                hasUnsavedChanges = false;
+                saveButton.disabled = true;
+                alert('Veriler başarıyla kaydedildi!');
+        saveToSupabase();
+            } catch (e) {
+                console.error('Veri kaydetme hatası:', e);
+                alert('Veriler kaydedilirken bir hata oluştu!');
+            }
+        }
+
+        // Tablo başlıklarını oluştur
+        function renderTableHeaders() {
+            const headersRow = document.getElementById("table-headers");
+            headersRow.innerHTML = "";
+            
+            // Sabit başlıklar
+            const fixedHeaders = ["SIRA", "ÖĞR. NO", "ADI", "SOYADI", "SINIF", "ŞUBE"];
+            fixedHeaders.forEach(header => {
+                const th = document.createElement("th");
+                th.className = header === "SIRA" ? "sira-column" : 
+                    header === "ÖĞR. NO" ? "ogrno-column" : "fixed-header";
+                th.textContent = header;
+                headersRow.appendChild(th);
+            });
+            
+            // Davranış başlıkları (dikey ve minimal)
+            behaviorColumns.forEach(column => {
+                const th = document.createElement("th");
+                th.className = "behavior-header";
+                const div = document.createElement("div");
+                div.className = "vertical-text";
+                div.textContent = column.name;
+                div.setAttribute("data-code", column.code);
+                div.onclick = function() { editHeader(this.parentNode, column.code); };
+                th.appendChild(div);
+                headersRow.appendChild(th);
+            });
+            
+            // Toplam puan başlığı (dikey ve mavi)
+            const totalTh = document.createElement("th");
+            totalTh.className = "total-score";
+            const totalDiv = document.createElement("div");
+            totalDiv.className = "vertical-text";
+            totalDiv.textContent = "TOPLAM";
+            totalTh.appendChild(totalDiv);
+            headersRow.appendChild(totalTh);
+            
+            // Zorluk derecesi başlığı (dikey ve kırmızı)
+            const difficultyTh = document.createElement("th");
+            difficultyTh.className = "difficulty-score";
+            const difficultyDiv = document.createElement("div");
+            difficultyDiv.className = "vertical-text";
+            difficultyDiv.textContent = "ZORLUK";
+            difficultyTh.appendChild(difficultyDiv);
+            headersRow.appendChild(difficultyTh);
+            
+            // Sınav başlıkları (dikey ve mavi)
+            examColumns.forEach(column => {
+                const th = document.createElement("th");
+                th.className = "exam-header";
+                const div = document.createElement("div");
+                div.className = "vertical-text";
+                div.textContent = column.name;
+                div.setAttribute("data-code", column.code);
+                div.onclick = function() { editHeader(this.parentNode, column.code); };
+                th.appendChild(div);
+                headersRow.appendChild(th);
+            });
+            
+            // Sınav ortalaması başlığı (dikey ve yeşil)
+            const averageExamTh = document.createElement("th");
+            averageExamTh.className = "average-exam-score";
+            const averageExamDiv = document.createElement("div");
+            averageExamDiv.className = "vertical-text";
+            averageExamDiv.textContent = "SNV ORT";
+            averageExamTh.appendChild(averageExamDiv);
+            headersRow.appendChild(averageExamTh);
+        }
+		// Seçili öğrencileri tutacak dizi
+        let selectedStudents = [];
+        // Öğrenci tablosunu oluştur
+        function renderStudentTable(filteredStudents = null) {
+            const tbody = document.querySelector("#student-table tbody");
+            tbody.innerHTML = "";
+
+            const studentsToRender = filteredStudents || students;
+
+            if (studentsToRender.length === 0) {
+                const row = document.createElement("tr");
+                const colCount = 6 + behaviorColumns.length + examColumns.length + 3;
+                row.innerHTML = `<td colspan="${colCount}" class="no-data">Kayıtlı öğrenci bulunamadı</td>`;
+                tbody.appendChild(row);
+                return;
+            }
+
+            studentsToRender.forEach((student, index) => {
+                const row = document.createElement("tr");
+                row.setAttribute("data-student-id", student.id);
+				
+				                // Sıra numarası (seçilebilir)
+                const siraTd = document.createElement("td");
+                siraTd.className = "sira-column";
+                if (selectedStudents.includes(student.id)) {
+                    siraTd.classList.add("selected");
+                }
+                siraTd.textContent = index + 1;
+                siraTd.onclick = function() { toggleStudentSelection(student.id, this); };
+                row.appendChild(siraTd);
+                
+                // Öğrenci numarası
+                const ogrNoTd = document.createElement("td");
+                ogrNoTd.className = "ogrno-column";
+                ogrNoTd.textContent = student.studentNumber || "";
+                row.appendChild(ogrNoTd);
+                
+                // Adı
+                const adTd = document.createElement("td");
+                adTd.className = "fixed-header";
+                adTd.textContent = student.name;
+                row.appendChild(adTd);
+                
+                // Soyadı
+                const soyadTd = document.createElement("td");
+                soyadTd.className = "fixed-header";
+                soyadTd.textContent = student.surname;
+                row.appendChild(soyadTd);
+                
+                // Sınıf
+                const sinifTd = document.createElement("td");
+                sinifTd.className = "fixed-header";
+                sinifTd.textContent = student.class;
+                row.appendChild(sinifTd);
+                
+                // Şube
+                const subeTd = document.createElement("td");
+                subeTd.className = "fixed-header";
+                subeTd.textContent = student.branch;
+                row.appendChild(subeTd);
+                
+                // Davranış puanları (dropdown ile)
+                behaviorColumns.forEach(column => {
+                    const score = student.behaviors[column.code] !== undefined ? student.behaviors[column.code] : "";
+                    const td = document.createElement("td");
+                    td.className = "editable-score";
+                    
+                    const select = document.createElement("select");
+                    select.setAttribute("data-student-id", student.id);
+                    select.setAttribute("data-behavior-code", column.code);
+                    
+                    // Boş seçenek
+                    const emptyOption = document.createElement("option");
+                    emptyOption.value = "";
+                    emptyOption.textContent = "";
+                    select.appendChild(emptyOption);
+                    
+                    // 0-10 arası puan seçenekleri
+                    for (let i = 0; i <= 10; i++) {
+                        const option = document.createElement("option");
+                        option.value = i;
+                        option.textContent = i;
+                        if (i.toString() === score.toString()) {
+                            option.selected = true;
+                        }
+                        select.appendChild(option);
+                    }
+                    
+                    select.onchange = function() {
+                        updateScore(student.id, column.code, this.value);
+                    };
+                    
+                    td.appendChild(select);
+                    row.appendChild(td);
+                });
+                
+                // Ortalama puan (dikey ve mavi)
+                const averageTd = document.createElement("td");
+                averageTd.className = "average-score";
+                averageTd.textContent = calculateAverage(student.behaviors).toFixed(1);
+                row.appendChild(averageTd);
+                
+                // Zorluk derecesi (dikey ve kırmızı)
+                const difficultyTd = document.createElement("td");
+                difficultyTd.className = "difficulty-score";
+                difficultyTd.textContent = (100 - (calculateAverage(student.behaviors) / behaviorColumns.length * 10)).toFixed(1);
+                row.appendChild(difficultyTd);
+                
+                // Sınav puanları (input ile)
+                examColumns.forEach(column => {
+                    const td = document.createElement("td");
+                    td.className = "editable-score";
+                    
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.value = student.exams && student.exams[column.code] !== undefined ? student.exams[column.code] : "";
+                    input.style.width = "80%";
+                    input.style.border = "1px solid #ddd";
+                    input.style.borderRadius = "3px";
+                    input.style.padding = "4px";
+                    input.style.textAlign = "center";
+                    
+                    input.setAttribute("data-student-id", student.id);
+                    input.setAttribute("data-exam-code", column.code);
+                    
+                    // Sadece sayısal değer girişine izin ver
+                    input.onkeypress = function(e) {
+                        const charCode = (e.which) ? e.which : e.keyCode;
+                        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                            return false;
+                        }
+                        return true;
+                    };
+                    
+                    input.onchange = function() {
+                        // Değer 0-100 arasında olmalı
+                        let value = this.value.trim();
+                        if (value === "") {
+                            updateExamScore(student.id, column.code, "");
+                            return;
+                        }
+                        
+                        value = parseInt(value);
+                        if (isNaN(value)) {
+                            this.value = "";
+                            updateExamScore(student.id, column.code, "");
+                            return;
+                        }
+                        
+                        if (value < 0) value = 0;
+                        if (value > 100) value = 100;
+                        
+                        this.value = value;
+                        updateExamScore(student.id, column.code, value);
+                    };
+                    
+                    input.onblur = function() {
+                        if (this.value.trim() === "") {
+                            updateExamScore(student.id, column.code, "");
+                        }
+                    };
+                    
+                    td.appendChild(input);
+                    row.appendChild(td);
+                });
+                
+                // Sınav ortalaması (dikey ve yeşil)
+                const averageExamTd = document.createElement("td");
+                averageExamTd.className = "average-exam-score";
+                averageExamTd.textContent = calculateExamAverage(student.exams).toFixed(1);
+                row.appendChild(averageExamTd);
+                
+                tbody.appendChild(row);
+            });
+			updateMassDeleteButton();
+        }
+		// Öğrenci seçimini değiştir
+        function toggleStudentSelection(studentId, element) {
+            const index = selectedStudents.indexOf(studentId);
+            
+            if (index === -1) {
+                // Seçili değilse ekle
+                selectedStudents.push(studentId);
+                element.classList.add("selected");
+            } else {
+                // Seçiliyse çıkar
+                selectedStudents.splice(index, 1);
+                element.classList.remove("selected");
+            }
+            
+            updateMassDeleteButton();
+        }
+
+        // Toplu silme butonunu güncelle
+        function updateMassDeleteButton() {
+            const massDeleteBtn = document.getElementById("mass-delete-btn");
+            massDeleteBtn.disabled = selectedStudents.length === 0;
+            if (selectedStudents.length > 0) {
+                massDeleteBtn.textContent = `SEÇİLİ ÖĞRENCİLERİ SİL (${selectedStudents.length})`;
+            } else {
+                massDeleteBtn.textContent = "SEÇİLİ ÖĞRENCİLERİ SİL";
+            }
+        }
+
+        // Seçili öğrencileri sil
+        function deleteSelectedStudents() {
+            if (selectedStudents.length === 0) return;
+            
+            const studentNames = selectedStudents.map(id => {
+                const student = students.find(s => s.id === id);
+                return student ? `${student.name} ${student.surname}` : "";
+            }).filter(name => name !== "");
+            
+            if (confirm(`Aşağıdaki öğrencileri silmek istediğinize emin misiniz?\n\n${studentNames.join("\n")}\n\nBu işlem geri alınamaz!`)) {
+                // Seçili öğrencileri filtrele
+                students = students.filter(student => !selectedStudents.includes(student.id));
+                
+                // Seçimleri temizle
+                selectedStudents = [];
+                
+                // Tabloyu yenile
+                renderStudentTable();
+                populateStudentSelects();
+                markChanges();
+                updateDashboard();
+            }
+        }
+
+        // Filtreleme yapıldığında seçimleri temizle
+        function filterStudents() {
+            selectedStudents = [];
+            renderStudentTable(getFilteredStudents());
+            updateDashboard();
+            updateDashboardTitle();
+        }
+		
+
+        // HTML escape fonksiyonu (XSS koruması için)
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe.toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Ortalama hesapla
+        function calculateAverage(behaviors) {
+            const scores = Object.values(behaviors).filter(score => score !== null && !isNaN(score));
+            if (scores.length === 0) return 0;
+            
+            const sum = scores.reduce((a, b) => a + b, 0);
+            return sum;
+        }
+
+        // Sınav ortalamasını hesapla
+        function calculateExamAverage(exams) {
+            if (!exams) return 0;
+            
+            const scores = Object.values(exams).filter(score => 
+                score !== null && !isNaN(score)
+            );
+            
+            if (scores.length === 0) return 0;
+            
+            const sum = scores.reduce((a, b) => a + parseInt(b), 0);
+            return sum / scores.length;
+        }
+
+        // Puan güncelleme
+        function updateScore(studentId, behaviorCode, newScore) {
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+            
+            if (newScore === "") {
+                delete student.behaviors[behaviorCode];
+            } else {
+                student.behaviors[behaviorCode] = parseInt(newScore);
+            }
+            
+            // Tablodaki ortalama ve zorluk derecesini güncelle
+            const row = document.querySelector(`tr[data-student-id="${studentId}"]`);
+            if (row) {
+                const average = calculateAverage(student.behaviors);
+                const behaviorColCount = behaviorColumns.length;
+                row.cells[6 + behaviorColCount].textContent = average.toFixed(1); // Ortalama sütunu
+                row.cells[7 + behaviorColCount].textContent = (100 - average).toFixed(1); // Zorluk sütunu
+            }
+            
+            markChanges();
+            updateDashboard();
+        }
+
+        // Sınav puanını güncelle
+        function updateExamScore(studentId, examCode, newScore) {
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+
+            // exams nesnesi yoksa oluştur
+            if (!student.exams) {
+                student.exams = {};
+            }
+
+            if (newScore === "" || isNaN(newScore)) {
+                delete student.exams[examCode];
+            } else {
+                student.exams[examCode] = parseInt(newScore);
+            }
+
+            const row = document.querySelector(`tr[data-student-id="${studentId}"]`);
+            if (row) {
+                const average = calculateExamAverage(student.exams);
+                row.cells[row.cells.length - 1].textContent = average.toFixed(1);
+            }
+            
+            markChanges();
+        }
+
+        // Başlık düzenleme
+        function editHeader(headerElement, columnCode) {
+            const currentDiv = headerElement.querySelector(".vertical-text");
+            const currentText = currentDiv.textContent;
+            
+            const input = document.createElement("input");
+            input.type = "text";
+            input.value = currentText;
+            input.style.width = "100%";
+            input.style.height = "100%";
+            input.style.textAlign = "center";
+            
+            headerElement.innerHTML = "";
+            headerElement.appendChild(input);
+            input.focus();
+            
+            input.onblur = function() {
+                const newText = input.value.trim();
+                if (newText) {
+                    const div = document.createElement("div");
+                    div.className = "vertical-text";
+                    div.textContent = newText;
+                    div.setAttribute("data-code", columnCode);
+                    div.onclick = function() { editHeader(headerElement, columnCode); };
+                    headerElement.appendChild(div);
+                    
+                    // Davranış veya sınav adını güncelle
+                    const behaviorColumn = behaviorColumns.find(col => col.code === columnCode);
+                    if (behaviorColumn) {
+                        behaviorColumn.name = newText;
+                    }
+                    
+                    const examColumn = examColumns.find(col => col.code === columnCode);
+                    if (examColumn) {
+                        examColumn.name = newText;
+                    }
+                    
+                    markChanges();
+                    updateDashboard();
+                } else {
+                    const div = document.createElement("div");
+                    div.className = "vertical-text";
+                    div.textContent = currentText;
+                    div.setAttribute("data-code", columnCode);
+                    div.onclick = function() { editHeader(headerElement, columnCode); };
+                    headerElement.appendChild(div);
+                }
+            };
+            
+            input.onkeypress = function(e) {
+                if (e.key === "Enter") {
+                    input.blur();
+                }
+            };
+        }
+
+        // Sınıf ve şube filtrelerini güncelle
+        function updateClassAndBranchFilters() {
+            const classFilter = document.getElementById("class-filter");
+            const branchFilter = document.getElementById("branch-filter");
+            
+            // Mevcut seçilen değerleri sakla
+            const selectedClass = classFilter.value;
+            const selectedBranch = branchFilter.value;
+            
+            // Sınıf filtrelerini temizle ve yenile
+            classFilter.innerHTML = '<option value="">Tüm Sınıflar</option>';
+            // Şube filtrelerini temizle ve yenile
+            branchFilter.innerHTML = '<option value="">Tüm Şubeler</option>';
+            
+            // Tüm sınıf ve şubeleri topla
+            const allClasses = [...new Set(students.map(s => s.class))].filter(c => c);
+            const allBranches = [...new Set(students.map(s => s.branch))].filter(b => b);
+            
+            // Sınıf filtrelerini ekle
+            allClasses.sort().forEach(c => {
+                const option = document.createElement("option");
+                option.value = c;
+                option.textContent = c;
+                classFilter.appendChild(option);
+            });
+            
+            // Şube filtrelerini ekle
+            allBranches.sort().forEach(b => {
+                const option = document.createElement("option");
+                option.value = b;
+                option.textContent = b;
+                branchFilter.appendChild(option);
+            });
+            
+            // Önceki seçimleri geri yükle
+            if (selectedClass && allClasses.includes(selectedClass)) {
+                classFilter.value = selectedClass;
+            }
+            if (selectedBranch && allBranches.includes(selectedBranch)) {
+                branchFilter.value = selectedBranch;
+            }
+        }
+
+        // Öğrencileri filtrele
+        function filterStudents() {
+            renderStudentTable(getFilteredStudents());
+            updateDashboard();
+            updateDashboardTitle();
+        }
+
+        // Dashboard başlığını güncelle
+        function updateDashboardTitle() {
+            const titleElement = document.getElementById("dashboard-title");
+            if (!titleElement) return;
+            
+            const classFilter = document.getElementById("class-filter").value;
+            const branchFilter = document.getElementById("branch-filter").value;
+            const searchFilter = document.getElementById("search-filter").value.toLowerCase();
+            
+            let title = "TÜM SINIFLAR";
+            
+            if (classFilter && branchFilter) {
+                title = `${classFilter}/${branchFilter} ŞUBESİ`;
+            } else if (classFilter) {
+                title = `${classFilter}. SINIFLAR`;
+            } else if (branchFilter) {
+                title = `${branchFilter} ŞUBELERİ`;
+            }
+            
+            if (searchFilter) {
+                title += ` - "${searchFilter.toUpperCase()}" ARAMA SONUÇLARI`;
+            }
+            
+            titleElement.textContent = `${title} PERFORMANS`;
+        }
+
+        // Filtreleri temizle
+        function resetFilters() {
+            document.getElementById("class-filter").value = "";
+            document.getElementById("branch-filter").value = "";
+            document.getElementById("search-filter").value = "";
+            renderStudentTable();
+            updateDashboard();
+            updateDashboardTitle();
+        }
+
+        // Öğrenci seçim dropdown'ını doldur
+        function populateStudentSelects() {
+            const studentSelect = document.getElementById("student-select");
+            
+            // Öğrenci seçimini temizle
+            studentSelect.innerHTML = '<option value="">Yeni Öğrenci Ekle</option>';
+            
+            // Öğrencileri dropdown'a ekle
+            students.forEach(student => {
+                const option = document.createElement("option");
+                option.value = student.id;
+                option.textContent = `${student.name} ${student.surname} (${student.class}/${student.branch})`;
+                studentSelect.appendChild(option);
+            });
+            
+            // Filtreleri güncelle
+            updateClassAndBranchFilters();
+        }
+
+        // Davranış seçim dropdown'ını doldur
+        function populateBehaviorSelect() {
+            const behaviorSelect = document.getElementById("existing-behavior");
+            behaviorSelect.innerHTML = '<option value="">Seçiniz</option>';
+            
+            behaviorColumns.forEach(column => {
+                const option = document.createElement("option");
+                option.value = column.code;
+                option.textContent = `${column.code} - ${column.name}`;
+                behaviorSelect.appendChild(option);
+            });
+        }
+
+        // Modal işlemleri
+        function openStudentModal() {
+            document.getElementById("studentModal").style.display = "block";
+        }
+
+        function closeStudentModal() {
+            document.getElementById("studentModal").style.display = "none";
+            resetStudentForm();
+        }
+
+        function openBehaviorModal() {
+            document.getElementById("behaviorModal").style.display = "block";
+            toggleBehaviorFields();
+        }
+
+        function closeBehaviorModal() {
+            document.getElementById("behaviorModal").style.display = "none";
+            resetBehaviorForm();
+        }
+
+        function openImportModal() {
+            document.getElementById("importModal").style.display = "block";
+            document.getElementById("import-progress").style.display = "none";
+        }
+
+        function closeImportModal() {
+            document.getElementById("importModal").style.display = "none";
+            document.getElementById("file-input").value = "";
+            document.getElementById("import-class").value = "";
+            document.getElementById("import-branch").value = "";
+        }
+
+        // Davranış modal alanlarını göster/gizle
+        function toggleBehaviorFields() {
+            const actionType = document.getElementById("behavior-action-type").value;
+            const nameGroup = document.getElementById("behavior-name-group");
+            const columnGroup = document.getElementById("behavior-column-group");
+            const existingGroup = document.getElementById("existing-behavior-group");
+            const deleteBtn = document.getElementById("behavior-delete-btn");
+            const submitBtn = document.getElementById("behavior-submit-btn");
+
+            if (actionType === "add") {
+                nameGroup.style.display = "block";
+                columnGroup.style.display = "block";
+                existingGroup.style.display = "none";
+                deleteBtn.style.display = "none";
+                submitBtn.style.display = "block";
+                submitBtn.textContent = "Ekle";
+            } else if (actionType === "edit") {
+                nameGroup.style.display = "block";
+                columnGroup.style.display = "none";
+                existingGroup.style.display = "block";
+                deleteBtn.style.display = "none";
+                submitBtn.style.display = "block";
+                submitBtn.textContent = "Güncelle";
+            } else if (actionType === "delete") {
+                nameGroup.style.display = "none";
+                columnGroup.style.display = "none";
+                existingGroup.style.display = "block";
+                deleteBtn.style.display = "block";
+                submitBtn.style.display = "none";
+            }
+        }
+
+        // Öğrenci formunu sıfırla
+        function resetStudentForm() {
+            document.getElementById("student-number").value = "";
+            document.getElementById("student-select").value = "";
+            document.getElementById("student-name").value = "";
+            document.getElementById("student-surname").value = "";
+            document.getElementById("student-class").value = "";
+            document.getElementById("student-branch").value = "";
+        }
+
+        // Davranış formunu sıfırla
+        function resetBehaviorForm() {
+            document.getElementById("behavior-action-type").value = "add";
+            document.getElementById("behavior-name").value = "";
+            document.getElementById("behavior-column").value = "";
+            document.getElementById("existing-behavior").value = "";
+            toggleBehaviorFields();
+        }
+
+        // Seçilen öğrencinin verilerini yükle
+        function loadStudentData() {
+            const studentId = parseInt(document.getElementById("student-select").value);
+            if (studentId) {
+                const student = students.find(s => s.id === studentId);
+                if (student) {
+                    document.getElementById("student-number").value = student.studentNumber || "";
+                    document.getElementById("student-name").value = student.name;
+                    document.getElementById("student-surname").value = student.surname;
+                    document.getElementById("student-class").value = student.class;
+                    document.getElementById("student-branch").value = student.branch;
+                }
+            } else {
+                resetStudentForm();
+            }
+        }
+
+        // Öğrenciyi kaydet
+        function saveStudent() {
+            const studentNumber = document.getElementById("student-number").value.trim();
+            const studentId = parseInt(document.getElementById("student-select").value);
+            const name = document.getElementById("student-name").value.trim();
+            const surname = document.getElementById("student-surname").value.trim();
+            const studentClass = document.getElementById("student-class").value.trim();
+            const branch = document.getElementById("student-branch").value.trim();
+            
+            if (!name || !surname || name.length < 2 || surname.length < 2) {
+                alert("Lütfen geçerli bir öğrenci adı ve soyadı giriniz (en az 2 karakter)!");
+                return;
+            }
+            
+            if (studentClass && !/^[0-9]+$/.test(studentClass)) {
+                alert("Sınıf numarası sadece rakamlardan oluşmalıdır!");
+                return;
+            }
+            
+            if (branch && !/^[A-Za-z]+$/.test(branch)) {
+                alert("Şube sadece harflerden oluşmalıdır!");
+                return;
+            }
+            
+            // Öğrenci numarası kontrolü
+            if (studentNumber && students.some(s => s.studentNumber === studentNumber && s.id !== studentId)) {
+                alert("Bu öğrenci numarası zaten kullanılıyor!");
+                return;
+            }
+            
+            if (studentId) {
+                // Mevcut öğrenciyi güncelle
+                const student = students.find(s => s.id === studentId);
+                if (student) {
+                    student.studentNumber = studentNumber;
+                    student.name = name.toUpperCase();
+                    student.surname = surname.toUpperCase();
+                    student.class = studentClass.toUpperCase();
+                    student.branch = branch.toUpperCase();
+                }
+            } else {
+                // Yeni öğrenci ekle
+                const newStudent = {
+                    id: students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1,
+                    studentNumber: studentNumber,
+                    name: name.toUpperCase(),
+                    surname: surname.toUpperCase(),
+                    class: studentClass.toUpperCase(),
+                    branch: branch.toUpperCase(),
+                    behaviors: {},
+                    exams: {},
+                    total: 0
+                };
+					behaviorColumns.forEach(col => {
+					newStudent.behaviors[col.code] = 10;
+				});
+				
+                students.push(newStudent);
+            }
+            
+            renderStudentTable();
+            populateStudentSelects();
+            markChanges();
+            updateDashboard();
+            closeStudentModal();
+        }
+
+        // Seçili öğrenciyi sil
+        function deleteSelectedStudent() {
+            const studentId = parseInt(document.getElementById("student-select").value);
+            if (!studentId) {
+                alert("Lütfen silmek istediğiniz öğrenciyi seçiniz!");
+                return;
+            }
+            
+            if (confirm("Bu öğrenciyi ve tüm davranış/sınav puanlarını silmek istediğinize emin misiniz?")) {
+                students = students.filter(s => s.id !== studentId);
+                renderStudentTable();
+                populateStudentSelects();
+                markChanges();
+                updateDashboard();
+                closeStudentModal();
+            }
+        }
+
+        // Davranış işlemini gerçekleştir
+        function processBehavior() {
+            const actionType = document.getElementById("behavior-action-type").value;
+            
+            if (actionType === "add") {
+                addNewBehavior();
+            } else if (actionType === "edit") {
+                editBehavior();
+            }
+        }
+
+        // Yeni davranış ekle
+        function addNewBehavior() {
+            const name = document.getElementById("behavior-name").value.trim();
+            const code = document.getElementById("behavior-column").value.trim().toUpperCase();
+            
+            if (!name || !code) {
+                alert("Lütfen davranış adı ve sütun kodu giriniz!");
+                return;
+            }
+            
+            if (!code.match(/^DV\d{1,2}$/)) {
+                alert("Sütun kodu 'DV' ile başlamalı ve bir sayı içermelidir (Örn: DV1, DV12)");
+                return;
+            }
+            
+            if (behaviorColumns.some(col => col.code === code)) {
+                alert("Bu sütun kodu zaten kullanılıyor!");
+                return;
+            }
+            
+            // Yeni davranış ekle
+            behaviorColumns.push({ code, name });
+            
+            // Tüm öğrencilere bu davranış için boş değer ekle
+            students.forEach(student => {
+                if (student.behaviors[code] === undefined) {
+                    student.behaviors[code] = null;
+                }
+            });
+            
+            renderTableHeaders();
+            renderStudentTable();
+            populateBehaviorSelect();
+            markChanges();
+            updateDashboard();
+            closeBehaviorModal();
+        }
+
+        // Davranışı düzenle
+        function editBehavior() {
+            const code = document.getElementById("existing-behavior").value;
+            const newName = document.getElementById("behavior-name").value.trim();
+            
+            if (!code || !newName) {
+                alert("Lütfen bir davranış seçiniz ve yeni adını giriniz!");
+                return;
+            }
+            
+            // Davranış adını güncelle
+            const behavior = behaviorColumns.find(col => col.code === code);
+            if (behavior) {
+                behavior.name = newName;
+            }
+            
+            renderTableHeaders();
+            renderStudentTable();
+            markChanges();
+            updateDashboard();
+            closeBehaviorModal();
+        }
+
+        // Davranışı sil
+        function deleteBehavior() {
+            const code = document.getElementById("existing-behavior").value;
+            
+            if (!code) {
+                alert("Lütfen silmek istediğiniz davranışı seçiniz!");
+                return;
+            }
+            
+            if (confirm("Bu davranışı ve TÜM öğrencilerin bu davranış puanlarını silmek istediğinize emin misiniz?")) {
+                // Davranışı listeden sil
+                behaviorColumns = behaviorColumns.filter(col => col.code !== code);
+                
+                // Tüm öğrencilerden bu davranış puanını sil
+                students.forEach(student => {
+                    delete student.behaviors[code];
+                });
+                
+                renderTableHeaders();
+                renderStudentTable();
+                populateBehaviorSelect();
+                markChanges();
+                updateDashboard();
+                closeBehaviorModal();
+            }
+        }
+
+        // Excel'den öğrenci aktar
+        function importStudents() {
+            const fileInput = document.getElementById("file-input");
+            const defaultClass = document.getElementById("import-class").value.trim().toUpperCase();
+            const defaultBranch = document.getElementById("import-branch").value.trim().toUpperCase();
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("Lütfen bir Excel dosyası seçiniz!");
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // İlk sayfayı al
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // JSON'a çevir
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    // Başlık satırını kontrol et ve sütun indekslerini belirle
+                    let nameIndex = 0, surnameIndex = 1, classIndex = 2, branchIndex = 3, numberIndex = 4;
+                    
+                    if (jsonData.length > 0) {
+                        const headerRow = jsonData[0];
+                        // Sütun başlıklarını kontrol ederek indeksleri belirle
+                        for (let i = 0; i < headerRow.length; i++) {
+                            const header = headerRow[i] ? headerRow[i].toString().toLowerCase() : '';
+                            if (header.includes('ad') || header.includes('isim')) nameIndex = i;
+                            else if (header.includes('soyad') || header.includes('soyisim')) surnameIndex = i;
+                            else if (header.includes('sınıf')) classIndex = i;
+                            else if (header.includes('şube')) branchIndex = i;
+                            else if (header.includes('numara') || header.includes('no')) numberIndex = i;
+                        }
+                    }
+                    
+                    // Başlık satırını atla (eğer varsa)
+                    let startRow = 0;
+                    if (jsonData.length > 0 && 
+                        (jsonData[0][nameIndex] && jsonData[0][nameIndex].toString().toLowerCase().includes('ad') || 
+                         jsonData[0][surnameIndex] && jsonData[0][surnameIndex].toString().toLowerCase().includes('soyad'))) {
+                        startRow = 1;
+                    }
+                    
+                    // İlerleme çubuğunu göster
+                    const progressBar = document.getElementById("progress-bar");
+                    const progressText = document.getElementById("progress-text");
+                    const importProgress = document.getElementById("import-progress");
+                    importProgress.style.display = "block";
+                    
+                    // Öğrencileri işle
+                    const newStudents = [];
+                    let processed = 0;
+                    const total = jsonData.length - startRow;
+                    
+                    // 100ms'de bir güncelleme yapmak için
+                    const updateInterval = setInterval(() => {
+                        progressBar.style.width = `${(processed / total) * 100}%`;
+                        progressText.textContent = `${processed}/${total} öğrenci işlendi`;
+                    }, 100);
+                    
+                    // Her satır için işlem yap
+                    for (let i = startRow; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (!row || row.length < 2) continue;
+                        
+                        const name = (row[nameIndex] || "").toString().trim().toUpperCase();
+                        const surname = (row[surnameIndex] || "").toString().trim().toUpperCase();
+                        
+                        // Ad ve soyad kontrolü
+                        if (!name || !surname) continue;
+                        
+                        // Sınıf ve şube bilgilerini al (eğer varsa)
+                        let studentClass = row[classIndex] ? (row[classIndex] || "").toString().trim().toUpperCase() : defaultClass;
+                        let branch = row[branchIndex] ? (row[branchIndex] || "").toString().trim().toUpperCase() : defaultBranch;
+                        
+                        // Öğrenci numarası (eğer varsa)
+                        const studentNumber = row[numberIndex] ? (row[numberIndex] || "").toString().trim() : "";
+                        
+                        // Eğer sınıf veya şube boşsa ve varsayılan değerler verilmişse onları kullan
+                        if (!studentClass && defaultClass) studentClass = defaultClass;
+                        if (!branch && defaultBranch) branch = defaultBranch;
+                        
+                        // Öğrenci numarası kontrolü
+                        if (studentNumber && students.some(s => s.studentNumber === studentNumber)) {
+                            continue; // Aynı numaralı öğrenci varsa atla
+                        }
+                        
+                        // Yeni öğrenci oluştur
+                        const newStudent = {
+                            id: students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 + newStudents.length : 1 + newStudents.length,
+                            studentNumber: studentNumber,
+                            name: name,
+                            surname: surname,
+                            class: studentClass || "",
+                            branch: branch || "",
+                            behaviors: {},
+                            exams: {},
+                            total: 0
+                        };
+						// Tüm davranış sütunları için 10 puan ata
+							behaviorColumns.forEach(col => {
+							newStudent.behaviors[col.code] = 10;
+						});
+                        
+                        newStudents.push(newStudent);
+                        processed++;
+                    }
+                    
+                    // İşlem tamamlandığında
+                    clearInterval(updateInterval);
+                    progressBar.style.width = "100%";
+                    progressText.textContent = `${processed}/${total} öğrenci işlendi`;
+                    
+                    // Yeni öğrencileri ekle
+                    students = students.concat(newStudents);
+                    
+                    // Tabloyu güncelle
+                    renderStudentTable();
+                    populateStudentSelects();
+                    markChanges();
+                    updateDashboard();
+                    
+                    // Başarı mesajı göster
+                    setTimeout(() => {
+                        alert(`${newStudents.length} yeni öğrenci başarıyla eklendi!`);
+                        closeImportModal();
+                    }, 500);
+                    
+                } catch (error) {
+                    console.error("Excel okuma hatası:", error);
+                    alert("Excel dosyası okunurken bir hata oluştu! Lütfen dosya formatını kontrol edin.");
+                }
+            };
+            
+            reader.onerror = function() {
+                alert("Dosya okunurken bir hata oluştu!");
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+function exportToExcel() {
+    try {
+        // Tarih bilgisini formatla
+        const today = new Date();
+        const dateStr = today.toLocaleDateString('tr-TR').replace(/\//g, '-');
+        
+        // Excel verisini hazırla
+        const excelData = [
+            // Başlık satırı
+            [
+                'SIRA', 'ÖĞR. NO', 'AD', 'SOYAD', 'SINIF', 'ŞUBE',
+                ...behaviorColumns.map(b => b.name),
+                'TOPLAM PUAN',
+                ...examColumns.map(e => e.name),
+                'SINAV ORTALAMASI'
+            ],
+            
+            // Veri satırları
+            ...students.map((student, index) => {
+                // Exams verisi yoksa boş obje oluştur
+                if (!student.exams) student.exams = {};
+                
+                return [
+                    index + 1,
+                    student.studentNumber || '',
+                    student.name,
+                    student.surname,
+                    student.class,
+                    student.branch,
+                    ...behaviorColumns.map(b => student.behaviors[b.code] || ''),
+                    calculateAverage(student.behaviors).toFixed(1),
+                    ...examColumns.map(e => student.exams[e.code] || ''),
+                    calculateExamAverage(student.exams).toFixed(1)
+                ];
+            })
+        ];
+
+        // Çalışma kitabı oluştur
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(excelData);
+        XLSX.utils.book_append_sheet(wb, ws, "Öğrenciler");
+
+        // Dosyayı indir
+        const fileName = `OgrenciTakip_${dateStr}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+        alert(`Excel dosyası başarıyla oluşturuldu: ${fileName}`);
+        
+    } catch (error) {
+        console.error("Excel aktarım hatası:", error);
+        alert("Excel oluşturulurken bir hata oluştu: " + error.message);
+    }
+}
+
+    </script>
+
+<script>
+const supabaseUrl = 'https://YOUR_SUPABASE_URL.supabase.co';
+const supabaseKey = 'YOUR_PUBLIC_ANON_KEY';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+async function saveToSupabase() {
+    const dataToSave = {
+        students,
+        behaviorColumns,
+        examColumns,
+        lastUpdated: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+        .from('ogrenci_verileri')
+        .insert([dataToSave]);
+
+    if (error) {
+        console.error('Supabase hatası:', error);
+        alert("Supabase'e kaydedilirken hata oluştu!");
+    } else {
+        alert("Supabase'e başarıyla kaydedildi!");
+    }
+}
+</script>
+</body>
+</html>
