@@ -486,7 +486,7 @@
     </style>
 <!-- Chart.js kütüphanesi -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script></head>
+</head>
 <body>
 <h1>ÖĞRENCİ TAKİP SİSTEMİ</h1>
 <div class="container">
@@ -651,9 +651,16 @@
 </div>
 </div>
 <!-- SheetJS kütüphanesi -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
-        // Giriş kontrolü
+const supabaseUrl = 'https://YOUR_SUPABASE_URL.supabase.co';
+const supabaseKey = 'YOUR_PUBLIC_ANON_KEY';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+</script>
+<script>// Giriş kontrolü
 if (sessionStorage.getItem('isLoggedIn') !== 'true') {
     window.location.href = 'login.html';
 }
@@ -1995,8 +2002,8 @@ function exportToExcel() {
     }
 }
 
-    </script>
-<script>
+    
+
 const supabaseUrl = 'https://YOUR_SUPABASE_URL.supabase.co';
 const supabaseKey = 'YOUR_PUBLIC_ANON_KEY';
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -2049,7 +2056,5 @@ async function loadDataFromSupabase() {
         updateDashboardTitle();
         updateDashboard();
     }
-}
-</script>
-</body>
+}</script></body>
 </html>
